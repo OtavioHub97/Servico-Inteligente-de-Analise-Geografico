@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\" />
     <Folder Include="Data\" />
     <Folder Include="Services\" />
     <Folder Include="Repositories\" />
