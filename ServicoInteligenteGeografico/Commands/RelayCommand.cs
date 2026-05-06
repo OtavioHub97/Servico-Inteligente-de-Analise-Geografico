@@ -24,13 +24,13 @@ namespace ServicoInteligenteGeografico.Commands
             return canExecute == null || canExecute();
         }
 
-        //executa
+        //executando sistema
         public void Execute(object parameter)
         {
             execute();
         }
 
-        //verifica se mudou e vai adicionar ou remover um evento
+        //verifica se mudou e vai adicionar ou remover um evento.
         public event EventHandler CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
