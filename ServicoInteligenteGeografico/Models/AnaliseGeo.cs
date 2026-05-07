@@ -8,7 +8,7 @@ namespace ServicoInteligenteGeografico.Models
 {
     /// <summary>
     /// Representa o resultado de uma análise geográfica salvo no Firebase.
-    /// Vinculado a uma LocalizacaoGeo pelo campo LocalizacaoId.
+    /// Vinculado a uma LocalizacaoGeo pelo campo LocalizacaoId...
     /// </summary>
     public class AnaliseGeo
     {
