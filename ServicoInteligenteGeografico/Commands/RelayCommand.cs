@@ -1,37 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ServicoInteligenteGeografico.Commands
 {
-    class RelayCommand
+    /// <summary>
+    /// Implementação de ICommand para uso no padrão MVVM (RelayCommand).
+    /// </summary>
+    public class RelayCommand : ICommand
     {
-        private readonly Action execute;
-        private readonly Func<bool> canExecute;
+        private readonly Action _execute;
+        private readonly Func<bool>? _canExecute;
 
-        public RelayCommand(Action execute, Func<bool> canExecute = null)
+        public RelayCommand(Action execute, Func<bool>? canExecute = null)
         {
-            this.execute = execute;
-            this.canExecute = canExecute;
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
         }
 
-        //verifica se pode ser executado
-        public bool CanExecute(object parameter)
-        {
-            return canExecute == null || canExecute();
-        }
+        public bool CanExecute(object? parameter)
+            => _canExecute == null || _canExecute();
 
-        //executando sistema
-        public void Execute(object parameter)
-        {
-            execute();
-        }
+        public void Execute(object? parameter)
+            => _execute();
 
-        //verifica se mudou e vai adicionar ou remover um evento.
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
