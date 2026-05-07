@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ServicoInteligenteGeografico"
         mc:Ignorable="d"
-        Title="Serviço inteligente Greográfico" Height="450" Width="800">
+        Title="Serviço inteligente Greográfico" Height="566" Width="800">
 
     <!-- Estilos e recursos da janela -->
     <Window.Resources>
@@ -51,6 +51,23 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+
+            <TextBlock Text="Distância entre pontos:" FontWeight="Bold" FontSize="14" Margin="6"></TextBlock>
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Longitude:" Margin="6"></TextBlock>
+                    <TextBox Margin="6" Padding="6" Text="{Binding Longitude, UpdateSourceTrigger=PropertyChanged}" Width="168" />
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Latitude:" Margin="6"></TextBlock>
+                    <TextBox Margin="6" Padding="6" Text="{Binding Latitude, UpdateSourceTrigger=PropertyChanged}" Width="177" />
+                </StackPanel>
+            </StackPanel>
+            
+            <Button Style="{StaticResource ButtonStyle}" Content="Calcular" FontWeight="Bold" Margin="6" Padding="6" Command="{Binding CalcularCommand}" Height="38" />
+            <TextBlock Text="{Binding ResultadoFormatado}" FontSize="16" Foreground="Green" Margin="6" />
+
         </StackPanel>
 
         <StackPanel Grid.Column="1">

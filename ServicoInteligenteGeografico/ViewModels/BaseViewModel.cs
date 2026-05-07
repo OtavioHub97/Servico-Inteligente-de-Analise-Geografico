@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServicoInteligenteGeografico.ViewModels
 {
-    class BaseViewModel : INotifyPropertyChanged
+    public abstract class BaseViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
