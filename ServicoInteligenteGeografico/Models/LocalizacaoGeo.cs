@@ -16,13 +16,11 @@ namespace ServicoInteligenteGeografico.Models
         public string? Logradouro { get; set; }
         public string? Numero { get; set; }
         public string? Bairro { get; set; }
-        public string? Cidade { get; set; }
-        public string? Estado { get; set; }
         public string? Cep { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
 
         // Data/hora em que o registro foi salvo
-        public string DataRegistro { get; set; } = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        public string Timestamp { get; set; } = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
     }
 }
