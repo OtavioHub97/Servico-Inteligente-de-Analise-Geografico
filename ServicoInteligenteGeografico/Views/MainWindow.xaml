@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ServicoInteligenteGeografico"
         mc:Ignorable="d"
-        Title="Serviço inteligente Greográfico" Height="566" Width="800">
+        Title="Serviço inteligente Greográfico" Height="589" Width="800">
 
     <!-- Estilos e recursos da janela -->
     <Window.Resources>
@@ -32,81 +32,94 @@
 
     <!-- Layout principal dividido em duas colunas -->
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="130*"/>
-            <ColumnDefinition Width="151*"/>
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <StackPanel Grid.Column="0">
-            
-            <TextBlock Text="Buscar Localização:" FontWeight="Bold" FontSize="14" Margin="6" ></TextBlock>
-            <TextBox Margin="6" Padding="6" Text="{Binding Localizacao, UpdateSourceTrigger=PropertyChanged}" />
+        
+        <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <RowDefinition Height="*"/>    </Grid.RowDefinitions>
 
-            <Button Style="{StaticResource ButtonStyle}" Content="Buscar" FontWeight="Bold" Margin="6" Padding="6" Command="{Binding BuscarCommand}" Height="38" />
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
 
-            <ListBox Margin="6" Height="213" ItemsSource="{Binding Temperaturas}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding StringFormat={}{0}°C}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <StackPanel Grid.Column="0" Margin="10">
+                <TextBlock Text="Buscar Localização:" FontWeight="Bold" FontSize="14" Margin="0,0,0,5" />
+                <TextBox Padding="6" Text="{Binding Localizacao, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Style="{StaticResource ButtonStyle}" Content="Buscar" FontWeight="Bold" Margin="0,10,0,10" Height="38" Command="{Binding BuscarCommand}" />
 
-            <TextBlock Text="Distância entre pontos:" FontWeight="Bold" FontSize="14" Margin="6"></TextBlock>
-            <StackPanel Orientation="Horizontal">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Longitude:" Margin="6"></TextBlock>
-                    <TextBox Margin="6" Padding="6" Text="{Binding Longitude, UpdateSourceTrigger=PropertyChanged}" Width="168" />
-                </StackPanel>
-
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Latitude:" Margin="6"></TextBlock>
-                    <TextBox Margin="6" Padding="6" Text="{Binding Latitude, UpdateSourceTrigger=PropertyChanged}" Width="177" />
-                </StackPanel>
+                <TextBlock Text="Locais Encontrados:" FontWeight="Bold" FontSize="12" Margin="0,5" />
+                <ListBox Height="120" ItemsSource="{Binding Locais}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Nome}" />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </StackPanel>
-            
-            <Button Style="{StaticResource ButtonStyle}" Content="Calcular" FontWeight="Bold" Margin="6" Padding="6" Command="{Binding CalcularCommand}" Height="38" />
-            <TextBlock Text="{Binding ResultadoFormatado}" FontSize="16" Foreground="Green" Margin="6" />
 
-        </StackPanel>
+            <StackPanel Grid.Column="1" Margin="10">
+                <TextBlock Text="Filtro por Região:" FontWeight="Bold" FontSize="14" Margin="0,0,0,5" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ComboBox Width="100" SelectedValuePath="Content" SelectedValue="{Binding TipoFiltro}">
+                        <ComboBoxItem Content="Bairro" IsSelected="True" />
+                        <ComboBoxItem Content="Logradouro" />
+                        <ComboBoxItem Content="CEP" />
+                    </ComboBox>
+                    <TextBox Grid.Column="1" Margin="5,0,0,0" Padding="6" Text="{Binding FiltroTexto, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
 
-        <StackPanel Grid.Column="1">
-            <TextBlock Text="Filtro por Região:" FontWeight="Bold" FontSize="14" Margin="6"></TextBlock>
-            <ComboBox Margin="6" Padding="6" SelectedIndex="0">
-                <ComboBoxItem Content="Cidade" />
-                <ComboBoxItem Content="Bairro" />
-                <ComboBoxItem Content="Rua" />
-                <ComboBoxItem Content="País" />
-                <ComboBoxItem Content="Estado" />
-            </ComboBox>
+                <TextBlock Text="Geração de Relatórios:" FontWeight="Bold" FontSize="14" Margin="0,15,0,5" />
+                <UniformGrid Columns="2">
+                    <Button Style="{StaticResource ButtonStyle}" Content="Gerar PDF" Margin="0,0,5,0" Height="36" FontWeight="Bold" Command="{Binding GerarPdfCommand}" />
+                    <Button Style="{StaticResource ButtonStyle}" Content="Histórico" Margin="5,0,0,0" Height="36" FontWeight="Bold" Command="{Binding HistoricoCommand}" />
+                </UniformGrid>
 
-            <TextBlock Text="Geração de Relatórios:" FontWeight="Bold" FontSize="14" Margin="6"></TextBlock>
-            <StackPanel Orientation="Horizontal">
-                <Button Style="{StaticResource ButtonStyle}" Content="Gerar PDF" Margin="6" Padding="6" Width="190" Height="36" FontWeight="Bold" Command="{Binding GerarPdfCommand}" />
-                <Button Style="{StaticResource ButtonStyle}" Content="Histórico" Margin="6" Padding="6" Width="183" Height="36" FontWeight="Bold" Command="{Binding HistoricoCommand}" />
+                <TextBlock Text="Cálculo de Distância:" FontWeight="Bold" FontSize="14" Margin="0,15,0,5" />
+                <UniformGrid Columns="2">
+                    <StackPanel Margin="0,0,5,0">
+                        <TextBlock Text="Longitude:" FontSize="10" Margin="3"/>
+                        <TextBox Padding="5" Text="{Binding Longitude, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                    <StackPanel Margin="5,0,0,0">
+                        <TextBlock Text="Latitude:" FontSize="10" Margin="3"/>
+                        <TextBox Padding="5" Text="{Binding Latitude, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                </UniformGrid>
+                <Button Style="{StaticResource ButtonStyle}" Content="Calcular" Margin="0,10,0,5" Height="38" Command="{Binding CalcularCommand}" />
+                <TextBlock Text="{Binding ResultadoFormatado}" FontSize="14" Foreground="Green" HorizontalAlignment="Center" />
             </StackPanel>
-            
-            <TextBlock Text="Ranking:" FontWeight="Bold" FontSize="14" Margin="6"></TextBlock>
-            <ScrollViewer Margin="6">
-                <DataGrid Margin="6" Height="150" 
-                          ItemsSource="{Binding Resultados}" 
-                          AutoGenerateColumns="False"
-                          CanUserAddRows="False"
-                          IsReadOnly="True"
-                          SelectionMode="Single">   
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="ID" Binding="{Binding Id}"/>
-                        <DataGridTextColumn Header="Logradouro" Binding="{Binding Logradouro}" Width="1*"/>
-                        <DataGridTextColumn Header="Nº" Binding="{Binding Numero}" Width="Auto"/>
-                        <DataGridTextColumn Header="Bairro" Binding="{Binding Bairro}" Width="*"/>
-                        <DataGridTextColumn Header="CEP" Binding="{Binding Cep}" Width="Auto"/>
-                        <DataGridTextColumn Header="Lat" Binding="{Binding Latitude, StringFormat={}{0:F4}}" Width="Auto"/>
-                        <DataGridTextColumn Header="Long" Binding="{Binding Longitude, StringFormat={}{0:F4}}" Width="Auto"/>
-                        <DataGridTextColumn Header="Data/Hora" Binding="{Binding Timestamp}" Width="*"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </ScrollViewer>
-        </StackPanel>
+        </Grid>
 
+        <GroupBox Grid.Row="1" Header="Ranking de Locais" Margin="10" FontWeight="Bold" FontSize="14">
+            <DataGrid ItemsSource="{Binding Resultados}" 
+                      AutoGenerateColumns="False"
+                      CanUserAddRows="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      BorderThickness="1"
+                      BorderBrush="#DDD">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                    <DataGridTextColumn Header="Logradouro" Binding="{Binding Logradouro}" Width="2*"/>
+                    <DataGridTextColumn Header="Nº" Binding="{Binding Numero}" Width="50"/>
+                    <DataGridTextColumn Header="Bairro" Binding="{Binding Bairro}" Width="1*"/>
+                    <DataGridTextColumn Header="CEP" Binding="{Binding Cep}" Width="80"/>
+                    <DataGridTextColumn Header="Lat" Binding="{Binding Latitude, StringFormat={}{0:F4}}" Width="80"/>
+                    <DataGridTextColumn Header="Long" Binding="{Binding Longitude, StringFormat={}{0:F4}}" Width="80"/>
+                    <DataGridTextColumn Header="Data/Hora" Binding="{Binding Timestamp}" Width="150"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+    </Grid>
     </Grid>
 </Window>
