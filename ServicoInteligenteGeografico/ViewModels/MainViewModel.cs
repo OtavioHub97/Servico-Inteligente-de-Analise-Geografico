@@ -111,34 +111,47 @@ public class MainViewModel : BaseViewModel
     {
         if (string.IsNullOrWhiteSpace(Localizacao)) return;
 
-        LogService.RegistrarLog($"Tentativa de busca: {Localizacao}");
-
-        var lista = await _localizacaoRepo.BuscarTodasAsync();
-        // Ordena por Bairro e depois por Logradouro antes de exibir
-        var listaOrdenada = lista.OrderBy(x => x.Bairro).ThenBy(x => x.Logradouro);
-
-        Resultados.Clear();
-        foreach (var item in listaOrdenada) Resultados.Add(item);
+        LogService.RegistrarLog($"Iniciando busca e salvamento: {Localizacao}");
 
         try
         {
+            // 1. Cria o objeto (Aqui você poderia usar uma API de Geocoding para pegar Lat/Long reais)
             var novaLocalizacao = new LocalizacaoGeo
             {
                 Logradouro = Localizacao,
-                Latitude = 0,
-                Longitude = 0 // Simulação
+                Bairro = "Bairro Exemplo", // Ideal obter via serviço
+                Latitude = -23.5505,       // Simulação de coordenada real
+                Longitude = -46.6333,      // Simulação de coordenada real
+                Timestamp = DateTime.Now.ToString("dd/MM/yyyy HH:mm")
             };
 
+            // 2. Salva no Firebase
             var salvo = await _localizacaoRepo.SalvarAsync(novaLocalizacao);
-            Resultados.Add(salvo);
-            Locais.Add(new Random().Next(15, 35));
+            LogService.RegistrarLog($"Salvo no Firebase ID: {salvo.Id}", "SUCCESS");
 
-            LogService.RegistrarLog($"Sucesso ao salvar no Firebase: {salvo.Id}", "SUCCESS");
+            // 3. Atualiza a lista completa e aplica o RANKING (Ordenação)
+            var listaDeBanco = await _localizacaoRepo.BuscarTodasAsync();
+
+            // Aplica o ranking por Bairro e Logradouro
+            var listaRankeada = listaDeBanco
+                .OrderBy(x => x.Bairro)
+                .ThenBy(x => x.Logradouro)
+                .ToList();
+
+            // 4. Atualiza a UI de forma limpa
+            Resultados.Clear();
+            foreach (var item in listaRankeada)
+            {
+                Resultados.Add(item);
+            }
+
+            // Simulação de temperatura/clima para o novo local
+            Locais.Add(new Random().Next(15, 35));
         }
         catch (Exception ex)
         {
-            LogService.RegistrarLog($"Erro na busca/salvamento: {ex.Message}", "ERROR");
-            MessageBox.Show("Erro ao processar busca.");
+            LogService.RegistrarLog($"Erro no processo: {ex.Message}", "ERROR");
+            MessageBox.Show("Erro ao processar busca e atualizar ranking.");
         }
     }
 
@@ -148,7 +161,7 @@ public class MainViewModel : BaseViewModel
         {
             var lista = await _localizacaoRepo.BuscarTodasAsync();
             Resultados.Clear();
-            Temperaturas.Clear();
+            Locais.Clear();
 
             foreach (var item in lista) Resultados.Add(item);
 
