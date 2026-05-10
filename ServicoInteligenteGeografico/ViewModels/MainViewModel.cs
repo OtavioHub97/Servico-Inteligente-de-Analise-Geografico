@@ -29,26 +29,43 @@ public class MainViewModel : BaseViewModel
     }
 
     // Propriedades para o cálculo de distância
-    private string _latitude;
+    // Troque os doubles por strings
+    private string _latOrigem = "0";
+    public string LatitudeOrigem
+    {
+        get => _latOrigem;
+        set { _latOrigem = value; OnPropertyChanged(nameof(LatitudeOrigem)); }
+    }
+
+    private string _longOrigem = "0";
+    public string LongitudeOrigem
+    {
+        get => _longOrigem;
+        set { _longOrigem = value; OnPropertyChanged(nameof(LongitudeOrigem)); }
+    }
+
+    private string _latDestino = "0";
     public string Latitude
     {
-        get => _latitude;
-        set { _latitude = value; OnPropertyChanged(nameof(Latitude)); }
+        get => _latDestino;
+        set { _latDestino = value; OnPropertyChanged(nameof(Latitude)); }
     }
 
-    private string _longitude;
+    private string _longDestino = "0";
     public string Longitude
     {
-        get => _longitude;
-        set { _longitude = value; OnPropertyChanged(nameof(Longitude)); }
+        get => _longDestino;
+        set { _longDestino = value; OnPropertyChanged(nameof(Longitude)); }
     }
 
+    // Propriedade para exibir o resultado (TextBlock verde)
     private string _resultadoFormatado;
     public string ResultadoFormatado
     {
         get => _resultadoFormatado;
         set { _resultadoFormatado = value; OnPropertyChanged(nameof(ResultadoFormatado)); }
     }
+
 
     // Propriedades para filtro
     private string _filtroTexto = string.Empty;
@@ -81,28 +98,16 @@ public class MainViewModel : BaseViewModel
 
     public ICommand CalcularCommand { get; }
 
-    public ICommand AbrirLogsCommand => new RelayCommand(() =>
-    {
-        string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs.txt");
-        if (File.Exists(logPath))
-        {
-            Process.Start(new ProcessStartInfo(logPath) { UseShellExecute = true });
-        }
-        else
-        {
-            MessageBox.Show("Arquivo de logs não encontrado.");
-        }
-    });
-
     public MainViewModel()
     {
+        CalcularCommand = new RelayCommand(() => Calcular());
+
         _localizacaoRepo = new LocalizacaoRepository();
         _analiseRepo = new AnaliseRepository();
 
         BuscarCommand = new RelayCommand(async () => await BuscarAsync());
         GerarPdfCommand = new RelayCommand(async () => await GerarPdfAsync()); // Alterado para Async
         HistoricoCommand = new RelayCommand(async () => await CarregarHistoricoAsync());
-        CalcularCommand = new RelayCommand(() => Calcular());
 
         _ = CarregarHistoricoAsync();
     }
@@ -173,17 +178,39 @@ public class MainViewModel : BaseViewModel
         }
     }
 
-    // Implementação do Cálculo de distância 
+    // Implementação do Cálculo de distância
     private void Calcular()
     {
-        if (double.TryParse(Latitude, out double distaciaLat) && double.TryParse(Longitude, out double distanciaLon))
+        try
         {
-            // Exemplo calculando a partir do primeiro item da lista ou localização atual
-            var pontoA = Resultados.FirstOrDefault();
-            if (pontoA == null) return;
+            // Função para converter aceitando ponto ou vírgula
+            double converter(string valor)
+            {
+                if (string.IsNullOrWhiteSpace(valor)) return 0;
+                string limpo = valor.Replace(',', '.');
+                if (double.TryParse(limpo, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double res))
+                    return res;
+                return 0;
+            }
 
-            double distancia = CalcularDistancia(pontoA.Latitude, pontoA.Longitude, distaciaLat, distanciaLon);
-            ResultadoFormatado = $"Distância: {distancia:F2} km";
+            double lat1 = converter(LatitudeOrigem);
+            double lon1 = converter(LongitudeOrigem);
+            double lat2 = converter(Latitude);
+            double lon2 = converter(Longitude);
+
+            // Debug visual para você ver o que ele leu
+            if (lat1 == 0 && lat2 == 0)
+            {
+                ResultadoFormatado = "Atenção: Coordenadas zeradas.";
+                return;
+            }
+
+            double d = CalcularDistancia(lat1, lon1, lat2, lon2);
+            ResultadoFormatado = $"Sucesso! Distância: {d:F2} km";
+        }
+        catch (Exception ex)
+        {
+            ResultadoFormatado = "Erro interno: " + ex.Message;
         }
     }
 
@@ -228,12 +255,6 @@ public class MainViewModel : BaseViewModel
     }
 
     private double ToRadians(double angle) => Math.PI * angle / 180.0;
-
-    // Implementação básica de INotifyPropertyChanged
-    public event PropertyChangedEventHandler PropertyChanged;
-    protected void OnPropertyChanged(string name) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
 
     private async Task GerarPdfAsync()
     {
