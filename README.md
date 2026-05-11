@@ -56,3 +56,16 @@ Um Serviço de Análise de Dados Geográficos especializado no processamento de 
 │   └── App.xaml.cs
 └── AssemblyInfo.cs
 ```
+## 5 - Dificuldades encontradas no decorrer do projeto
+
+
+
+**4.1 - Pacotes do Firebase não instalados**
+Após adicionar os arquivos de integração ao projeto WPF, a compilação falhou com erros do tipo namespace 'FirebaseAdmin' não pode ser encontrado. O motivo foi que os pacotes NuGet do Firebase ainda não haviam sido instalados no projeto.
+Solução: executar os comandos abaixo no terminal dentro da pasta do projeto:
+bashcd ServicoInteligenteGeografico
+dotnet add package FirebaseAdmin --version 3.1.0
+dotnet add package FirebaseDatabase.net --version 4.2.0
+
+
+
