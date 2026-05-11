@@ -168,8 +168,10 @@ public class MainViewModel : BaseViewModel
         try
         {
             // Busca os dados brutos da API
-            var listaDeBanco = await _localizacaoRepo.BuscarTodasAsync();
-
+            var listaDeBanco = await _mapasApiService.BuscarTodasAsync();
+            var lista = await _mapasApiService.BuscarPorLogradouroAsync(BuscaApiLogradouro.Trim());
+            foreach (var item in lista) Dados.Add(item);
+            StatusApi = lista.Count > 0 ? $"✔ {lista.Count} resultado(s) para '{BuscaApiLogradouro}'." : "Nenhum resultado encontrado.";
             // Limpa a lista atual para garantir que não haja duplicatas na tela
             Dados.Clear();
 
@@ -178,6 +180,7 @@ public class MainViewModel : BaseViewModel
             {
                 Dados.Add(item);
             }
+
 
             // Controle de Erro simples para o caso de a API retornar uma lista vazia
             if (Dados.Count == 0)
@@ -270,7 +273,7 @@ public class MainViewModel : BaseViewModel
     {
         try
         {
-            var lista = await _localizacaoRepo.BuscarTodasAsync();
+            var lista = await _mapasApiService.BuscarTodasAsync();
 
             Resultados.Clear();
             foreach (var item in lista)
@@ -287,6 +290,7 @@ public class MainViewModel : BaseViewModel
         {
             MessageBox.Show("Erro ao carregar ranking: " + ex.Message);
         }
+
     }
 
     // Método para aplicar o filtro na lista que a DataGrid exibe
