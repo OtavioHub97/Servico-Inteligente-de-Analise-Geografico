@@ -141,6 +141,13 @@ public class MainViewModel : BaseViewModel
 
     public MainViewModel()
     {
+        _mapasApiService = new MapasApiService();
+
+        ApiListarTodasCommand = new RelayCommand(async () => await CarregarRankingAsync());
+        ApiBuscarPorIdCommand = new RelayCommand(async () => await BuscarAsync());
+        ApiBuscarPorLogradouroCommand = new RelayCommand(async () => await BuscarAsync());
+        ApiLimparCommand = new RelayCommand(() => Limpar());
+
         CalcularCommand = new RelayCommand(() => Calcular());
 
         _localizacaoRepo = new LocalizacaoRepository();
