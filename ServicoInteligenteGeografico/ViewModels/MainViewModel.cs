@@ -20,6 +20,8 @@ public class MainViewModel : BaseViewModel
     private readonly LocalizacaoRepository _localizacaoRepo;
     private readonly AnaliseRepository _analiseRepo;
 
+    private readonly MapasApiService _mapasApiService;
+
     // Propriedades e Listas...
     private string _localizacao = string.Empty;
     public string Localizacao
