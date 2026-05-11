@@ -114,49 +114,39 @@ public class MainViewModel : BaseViewModel
 
     private async Task BuscarAsync()
     {
-        if (string.IsNullOrWhiteSpace(Localizacao)) return;
-
-        LogService.RegistrarLog($"Iniciando busca e salvamento: {Localizacao}");
+        // 1. Verifica se o usuário digitou algo
+        if (string.IsNullOrWhiteSpace(Localizacao))
+        {
+            MessageBox.Show("Digite um nome para buscar.");
+            return;
+        }
 
         try
         {
-            // 1. Cria o objeto (Aqui você poderia usar uma API de Geocoding para pegar Lat/Long reais)
-            var novaLocalizacao = new LocalizacaoGeo
-            {
-                Logradouro = Localizacao,
-                Bairro = "Bairro Exemplo", // Ideal obter via serviço
-                Latitude = -23.5505,       // Simulação de coordenada real
-                Longitude = -46.6333,      // Simulação de coordenada real
-                Timestamp = DateTime.Now.ToString("dd/MM/yyyy HH:mm")
-            };
-
-            // 2. Salva no Firebase
-            var salvo = await _localizacaoRepo.SalvarAsync(novaLocalizacao);
-            LogService.RegistrarLog($"Salvo no Firebase ID: {salvo.Id}", "SUCCESS");
-
-            // 3. Atualiza a lista completa e aplica o RANKING (Ordenação)
+            // Busca da API/Firebase
             var listaDeBanco = await _localizacaoRepo.BuscarTodasAsync();
 
-            // Aplica o ranking por Bairro e Logradouro
-            var listaRankeada = listaDeBanco
-                .OrderBy(x => x.Bairro)
-                .ThenBy(x => x.Logradouro)
+            // Filtra para aparecer apenas o que buscou, usando StringComparison para ignorar maiúsculas/minúsculas
+            var filtrado = listaDeBanco
+                .Where(x => x.Logradouro.Contains(Localizacao, StringComparison.OrdinalIgnoreCase) ||
+                            x.Bairro.Contains(Localizacao, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-            // 4. Atualiza a UI de forma limpa
             Resultados.Clear();
-            foreach (var item in listaRankeada)
+            foreach (var item in filtrado)
             {
                 Resultados.Add(item);
             }
 
-            // Simulação de temperatura/clima para o novo local
-            Locais.Add(new Random().Next(15, 35));
+            if (Resultados.Count == 0)
+            {
+                MessageBox.Show("Nenhum registro encontrado com esse nome.");
+            }
+
         }
         catch (Exception ex)
         {
-            LogService.RegistrarLog($"Erro no processo: {ex.Message}", "ERROR");
-            MessageBox.Show("Erro ao processar busca e atualizar ranking.");
+            LogService.RegistrarLog($"Erro: {ex.Message}", "ERROR");
         }
     }
 
