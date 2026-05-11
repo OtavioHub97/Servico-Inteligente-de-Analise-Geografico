@@ -20,6 +20,39 @@ public class MainViewModel : BaseViewModel
     private readonly LocalizacaoRepository _localizacaoRepo;
     private readonly AnaliseRepository _analiseRepo;
 
+    private readonly MapasApiService _mapasApiService;
+
+
+    private string _buscaApiId = string.Empty;
+    public string BuscaApiId
+    {
+        get => _buscaApiId;
+        set { _buscaApiId = value; OnPropertyChanged(nameof(BuscaApiId)); }
+    }
+
+    private string _buscaApiLogradouro = string.Empty;
+    public string BuscaApiLogradouro
+    {
+        get => _buscaApiLogradouro;
+        set { _buscaApiLogradouro = value; OnPropertyChanged(nameof(BuscaApiLogradouro)); }
+    }
+
+    private string _statusApi = string.Empty;
+    public string StatusApi
+    {
+        get => _statusApi;
+        set { _statusApi = value; OnPropertyChanged(nameof(StatusApi)); }
+    }
+
+    private bool _carregandoApi = false;
+    public bool CarregandoApi
+    {
+        get => _carregandoApi;
+        set { _carregandoApi = value; OnPropertyChanged(nameof(CarregandoApi)); }
+    }
+
+    public ObservableCollection<LocalizacaoGeo> ResultadosApi { get; set; } = new();
+
     // Propriedades e Listas...
     private string _localizacao = string.Empty;
     public string Localizacao
@@ -101,8 +134,20 @@ public class MainViewModel : BaseViewModel
 
     public ICommand CalcularCommand { get; }
 
+    public ICommand ApiListarTodasCommand { get; }
+    public ICommand ApiBuscarPorIdCommand { get; }
+    public ICommand ApiBuscarPorLogradouroCommand { get; }
+    public ICommand ApiLimparCommand { get; }
+
     public MainViewModel()
     {
+        _mapasApiService = new MapasApiService();
+
+        ApiListarTodasCommand = new RelayCommand(async () => await CarregarRankingAsync());
+        ApiBuscarPorIdCommand = new RelayCommand(async () => await BuscarAsync());
+        ApiBuscarPorLogradouroCommand = new RelayCommand(async () => await BuscarAsync());
+        ApiLimparCommand = new RelayCommand(() => Limpar());
+
         CalcularCommand = new RelayCommand(() => Calcular());
 
         _localizacaoRepo = new LocalizacaoRepository();
@@ -123,8 +168,10 @@ public class MainViewModel : BaseViewModel
         try
         {
             // Busca os dados brutos da API
-            var listaDeBanco = await _localizacaoRepo.BuscarTodasAsync();
-
+            var listaDeBanco = await _mapasApiService.BuscarTodasAsync();
+            var lista = await _mapasApiService.BuscarPorLogradouroAsync(BuscaApiLogradouro.Trim());
+            foreach (var item in lista) Dados.Add(item);
+            StatusApi = lista.Count > 0 ? $"✔ {lista.Count} resultado(s) para '{BuscaApiLogradouro}'." : "Nenhum resultado encontrado.";
             // Limpa a lista atual para garantir que não haja duplicatas na tela
             Dados.Clear();
 
@@ -133,6 +180,7 @@ public class MainViewModel : BaseViewModel
             {
                 Dados.Add(item);
             }
+
 
             // Controle de Erro simples para o caso de a API retornar uma lista vazia
             if (Dados.Count == 0)
@@ -225,7 +273,7 @@ public class MainViewModel : BaseViewModel
     {
         try
         {
-            var lista = await _localizacaoRepo.BuscarTodasAsync();
+            var lista = await _mapasApiService.BuscarTodasAsync();
 
             Resultados.Clear();
             foreach (var item in lista)
@@ -242,6 +290,7 @@ public class MainViewModel : BaseViewModel
         {
             MessageBox.Show("Erro ao carregar ranking: " + ex.Message);
         }
+
     }
 
     // Método para aplicar o filtro na lista que a DataGrid exibe
