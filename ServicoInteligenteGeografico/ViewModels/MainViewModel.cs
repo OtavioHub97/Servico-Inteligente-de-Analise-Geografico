@@ -134,6 +134,11 @@ public class MainViewModel : BaseViewModel
 
     public ICommand CalcularCommand { get; }
 
+    public ICommand ApiListarTodasCommand { get; }
+    public ICommand ApiBuscarPorIdCommand { get; }
+    public ICommand ApiBuscarPorLogradouroCommand { get; }
+    public ICommand ApiLimparCommand { get; }
+
     public MainViewModel()
     {
         CalcularCommand = new RelayCommand(() => Calcular());
