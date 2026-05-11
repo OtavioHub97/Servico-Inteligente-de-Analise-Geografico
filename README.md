@@ -60,7 +60,7 @@ Um Serviço de Análise de Dados Geográficos especializado no processamento de 
 
 
 
-**4.1 - Pacotes do Firebase não instalados**
+**5.1 - Pacotes do Firebase não instalados**
 Após adicionar os arquivos de integração ao projeto WPF, a compilação falhou com erros do tipo namespace 'FirebaseAdmin' não pode ser encontrado. O motivo foi que os pacotes NuGet do Firebase ainda não haviam sido instalados no projeto.
 Solução: executar os comandos abaixo no terminal dentro da pasta do projeto:
 bashcd ServicoInteligenteGeografico
@@ -69,13 +69,29 @@ dotnet add package FirebaseDatabase.net --version 4.2.0
 
 
 
-**4.2 - Terminal apontando para a pasta errada**
+**5.2 - Terminal apontando para a pasta errada**
 Ao tentar instalar os pacotes pelo terminal do Visual Studio, o comando retornou o erro Não foi possível encontrar nenhum projeto. O terminal estava na pasta raiz do repositório, e não dentro da pasta do projeto .csproj.
 Solução: navegar para a pasta correta com cd ServicoInteligenteGeografico antes de rodar os comandos.
 
 
 
 
-**4.3 - Dificuldade com o cálculo da distância entre os pontos**
+**5.3 - Dificuldade com o cálculo da distância entre os pontos**
+
+**5.4 - Dificuldades Encontradas e Soluções (Otavio)**
+
+Durante o desenvolvimento da minha parte no projeto, acabei esbarrando em alguns desafios técnicos bem interessantes que serviram de aprendizado:
+
+* **Curva de aprendizado com o Firebase e divisão de tarefas:**
+  Sair do modelo tradicional de banco de dados e entender como o Firebase funciona (com coleções, documentos e chamadas assíncronas) foi meio confuso no começo. Tive bastante dificuldade para fazer essa configuração inicial rodar redonda. No fim das contas, para o projeto não travar, fizemos uma rotação nas tarefas da squad: um colega que tinha mais facilidade assumiu a sequência da integração com o banco, e eu foquei em deixar a parte de modelagem, logs e tratamento de erros robusta.
+
+* **Caminhos de arquivos no Sistema de Logs:**
+  Criar o `LogService` centralizado parecia simples na teoria, mas na prática apanhei um pouco para fazer o arquivo `sistema_logs.txt` ser salvo no lugar certo em qualquer computador. Se eu colocasse o caminho da minha máquina, quebrava no PC dos colegas da squad. A solução foi usar o comando `AppDomain.CurrentDomain.BaseDirectory` para achar a pasta raiz dinamicamente, além de colocar um tratamento para garantir que, se o log falhasse ao salvar, o aplicativo não fechasse do nada na cara do usuário.
+
+* **Rastreabilidade de Erros usando os Models:**
+Na hora de aplicar o tratamento de erros nos serviços de análise, percebi que apenas capturar a exceção genérica não ajudava a saber onde o problema tinha acontecido. O desafio foi desenhar as mensagens de log aproveitando a estrutura dos nossos models. Como a classe AnaliseGeo possui o LocalizacaoId e a Regiao, passei a injetar esses dados diretamente no bloco catch. Assim, se o processamento falhar, o log registra exatamente qual chave ou região causou o erro, facilitando a depuração posterior.
+
+* **Conflitos do Git quebrando o Visual Studio (Arquivo `.csproj`):**
+  Essa foi clássica! Na hora de juntar o código da squad, o Git gerou um conflito de mesclagem direto no arquivo de configuração do projeto (o `.csproj`). O Visual Studio começou a dar um erro crítico (MSB4025) e o projeto não compilava de jeito nenhum. Demorei um tempo para entender que o Git tinha injetado aquelas marcações de setas (`<<<<<<<`) no meio do código XML do projeto e que a solução era abrir o arquivo na mão para limpar a sujeira.
 
 
