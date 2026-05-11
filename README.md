@@ -1,4 +1,4 @@
-# Serviço Inteligente de Análise Geográfica
+# __ Serviço Inteligente de Análise Geográfica __
 
 **Integrantes:** <br> 
 Bruno Maia <br> 
@@ -28,3 +28,31 @@ Um Serviço de Análise de Dados Geográficos especializado no processamento de 
 **[RNF-001] Persistência:** Os dados analíticos processados devem ser armazenados no Firebase. <br>
 **[RNF-002] Performance:** O cálculo de distância e agrupamento deve ser otimizado para respostas em tempo real. <br>
 **[RNF-003] Escalabilidade:** A arquitetura de microserviço deve suportar o aumento de volume de dados geográficos. <br>
+
+### 4 - 📂 Estrutura do Projeto:
+
+```
+📂SistemaInteligenteGeografico
+├── 📂Commands
+│   └── RelayCommand.cs
+├── 📂Data
+│   └── Database.cs
+├── 📂Models
+│   ├── AnaliseGeo.cs
+│   └── LocalizacaoGeo.cs
+├── 📂Repositories
+│   ├── AnaliseRepository.cs
+│   └── LocalizacaoRepository.cs
+├── 📂Services
+│   ├── AnaliseGeoService.cs
+│   └── LogService.cs
+├── 📂ViewModels
+│   ├── BaseViewModel.cs
+│   └── MainViewModel.cs
+├── 📂Views
+│   └── MainWindow.xaml
+│       └── MainWindow.xaml.cs
+├── App.xaml
+│   └── App.xaml.cs
+└── AssemblyInfo.cs
+```
