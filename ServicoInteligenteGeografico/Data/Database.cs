@@ -42,7 +42,7 @@ namespace ServicoInteligenteGeografico.Data
                 {
                     AuthTokenAsyncFactory = async () =>
                     {
-                        // Gera um token de autenticação usando o Admin SDK
+                        // Gera um token de autenticação usando o Admin 
                         string token = await FirebaseAuth.DefaultInstance
                             .CreateCustomTokenAsync("servico-geografico");
                         return token;
