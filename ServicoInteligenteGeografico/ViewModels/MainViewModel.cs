@@ -94,6 +94,8 @@ public class MainViewModel : BaseViewModel
 
     // Comandos
     public ICommand BuscarCommand { get; }
+
+    public ICommand LimparCommand { get; }
     public ICommand GerarPdfCommand { get; }
     public ICommand HistoricoCommand { get; }
 
@@ -109,6 +111,8 @@ public class MainViewModel : BaseViewModel
         BuscarCommand = new RelayCommand(async () => await BuscarAsync());
         GerarPdfCommand = new RelayCommand(async () => await GerarPdfAsync()); // Alterado para Async
         HistoricoCommand = new RelayCommand(async () => await CarregarHistoricoAsync());
+
+        LimparCommand = new RelayCommand(() => Limpar());
 
         _ = CarregarRankingAsync();
 
@@ -143,6 +147,12 @@ public class MainViewModel : BaseViewModel
             LogService.RegistrarLog($"Erro ao carregar dados: {ex.Message}", "ERROR");
             MessageBox.Show("Erro ao buscar dados na API. Verifique a conexão.");
         }
+    }
+
+    // Limpar a lista de dados 
+    private void Limpar()
+    {
+        Dados.Clear();
     }
 
     private async Task CarregarHistoricoAsync()
