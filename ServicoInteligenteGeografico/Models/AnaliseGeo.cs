@@ -13,11 +13,10 @@ namespace ServicoInteligenteGeografico.Models
     public class AnaliseGeo
     {
         public string? Id { get; set; }
-        public string? LocalizacaoId { get; set; }  // Chave da localização relacionada
-
-        // Dados climáticos retornados pela análise
+        public string? LocalizacaoId { get; set; }
+        public string? Regiao { get; set; }
         public double Temperatura { get; set; }
-        public string? Clima { get; set; }  // Ex: "Ensolarado", "Nublado", "Chuvoso"
+        public string? Clima { get; set; }
         public double Umidade { get; set; }
 
         // Pontuação/ranking da localização
@@ -26,3 +25,4 @@ namespace ServicoInteligenteGeografico.Models
         public string DataAnalise { get; set; } = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
     }
 }
+

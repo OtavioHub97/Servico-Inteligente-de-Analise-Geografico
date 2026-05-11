@@ -1,4 +1,4 @@
-# Serviço Inteligente de Análise Geográfica
+# __ Serviço Inteligente de Análise Geográfica __
 
 **Integrantes:** <br> 
 Bruno Maia <br> 
@@ -28,3 +28,54 @@ Um Serviço de Análise de Dados Geográficos especializado no processamento de 
 **[RNF-001] Persistência:** Os dados analíticos processados devem ser armazenados no Firebase. <br>
 **[RNF-002] Performance:** O cálculo de distância e agrupamento deve ser otimizado para respostas em tempo real. <br>
 **[RNF-003] Escalabilidade:** A arquitetura de microserviço deve suportar o aumento de volume de dados geográficos. <br>
+
+### 4 - 📂 Estrutura do Projeto:
+
+```
+📂SistemaInteligenteGeografico
+├── 📂Commands
+│   └── RelayCommand.cs
+├── 📂Data
+│   └── Database.cs
+├── 📂Models
+│   ├── AnaliseGeo.cs
+│   └── LocalizacaoGeo.cs
+├── 📂Repositories
+│   ├── AnaliseRepository.cs
+│   └── LocalizacaoRepository.cs
+├── 📂Services
+│   ├── AnaliseGeoService.cs
+│   └── LogService.cs
+├── 📂ViewModels
+│   ├── BaseViewModel.cs
+│   └── MainViewModel.cs
+├── 📂Views
+│   └── MainWindow.xaml
+│       └── MainWindow.xaml.cs
+├── App.xaml
+│   └── App.xaml.cs
+└── AssemblyInfo.cs
+```
+## 5 - Dificuldades encontradas no decorrer do projeto
+
+
+
+**4.1 - Pacotes do Firebase não instalados**
+Após adicionar os arquivos de integração ao projeto WPF, a compilação falhou com erros do tipo namespace 'FirebaseAdmin' não pode ser encontrado. O motivo foi que os pacotes NuGet do Firebase ainda não haviam sido instalados no projeto.
+Solução: executar os comandos abaixo no terminal dentro da pasta do projeto:
+bashcd ServicoInteligenteGeografico
+dotnet add package FirebaseAdmin --version 3.1.0
+dotnet add package FirebaseDatabase.net --version 4.2.0
+
+
+
+**4.2 - Terminal apontando para a pasta errada**
+Ao tentar instalar os pacotes pelo terminal do Visual Studio, o comando retornou o erro Não foi possível encontrar nenhum projeto. O terminal estava na pasta raiz do repositório, e não dentro da pasta do projeto .csproj.
+Solução: navegar para a pasta correta com cd ServicoInteligenteGeografico antes de rodar os comandos.
+
+
+
+
+**4.3 - Dificuldade com o cálculo da distância entre os pontos**
+
+

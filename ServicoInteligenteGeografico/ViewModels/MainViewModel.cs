@@ -1,131 +1,388 @@
-﻿using ServicoInteligenteGeografico.Commands;
+﻿
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using ServicoInteligenteGeografico.Commands;
 using ServicoInteligenteGeografico.Models;
 using ServicoInteligenteGeografico.Repositories;
-using System;
-using System.Collections.Generic;
+using ServicoInteligenteGeografico.Services;
+using ServicoInteligenteGeografico.ViewModels;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 
-namespace ServicoInteligenteGeografico.ViewModels
+public class MainViewModel : BaseViewModel
 {
-    /// <summary>
-    /// ViewModel da janela principal.
-    /// Conecta a interface (View) com o Firebase via Repositories.
-    /// </summary>
-    public class MainViewModel : BaseViewModel
+    private readonly LocalizacaoRepository _localizacaoRepo;
+    private readonly AnaliseRepository _analiseRepo;
+
+    // Propriedades e Listas...
+    private string _localizacao = string.Empty;
+    public string Localizacao
     {
-        private readonly LocalizacaoRepository _localizacaoRepo;
-        private readonly AnaliseRepository _analiseRepo;
+        get => _localizacao;
+        set { _localizacao = value; OnPropertyChanged(nameof(Localizacao)); }
+    }
 
-        // ── Propriedades vinculadas à View ───────────────────────────────────
+    // Propriedades para o cálculo de distância
+    // Troque os doubles por strings
+    private string _latOrigem = "0";
+    public string LatitudeOrigem
+    {
+        get => _latOrigem;
+        set { _latOrigem = value; OnPropertyChanged(nameof(LatitudeOrigem)); }
+    }
 
-        private string _localizacao = string.Empty;
-        public string Localizacao
+    private string _longOrigem = "0";
+    public string LongitudeOrigem
+    {
+        get => _longOrigem;
+        set { _longOrigem = value; OnPropertyChanged(nameof(LongitudeOrigem)); }
+    }
+
+    private string _latDestino = "0";
+    public string Latitude
+    {
+        get => _latDestino;
+        set { _latDestino = value; OnPropertyChanged(nameof(Latitude)); }
+    }
+
+    private string _longDestino = "0";
+    public string Longitude
+    {
+        get => _longDestino;
+        set { _longDestino = value; OnPropertyChanged(nameof(Longitude)); }
+    }
+
+    // Propriedade para exibir o resultado (TextBlock verde)
+    private string _resultadoFormatado;
+    public string ResultadoFormatado
+    {
+        get => _resultadoFormatado;
+        set { _resultadoFormatado = value; OnPropertyChanged(nameof(ResultadoFormatado)); }
+    }
+
+
+    // Propriedades para filtro
+    private string _filtroTexto = string.Empty;
+    public string FiltroTexto
+    {
+        get => _filtroTexto;
+        set
         {
-            get => _localizacao;
-            set { _localizacao = value; OnPropertyChanged(nameof(Localizacao)); }
+            _filtroTexto = value;
+            OnPropertyChanged(nameof(FiltroTexto));
+            AplicarFiltro(); // Filtra enquanto o usuário digita
         }
+    }
 
-        // Lista de temperaturas exibida no ListBox
-        public ObservableCollection<double> Temperaturas { get; set; } = new();
+    private string _tipoFiltro = "Bairro"; // Padrão
+    public string TipoFiltro
+    {
+        get => _tipoFiltro;
+        set { _tipoFiltro = value; OnPropertyChanged(nameof(TipoFiltro)); }
+    }
 
-        // Lista de resultados exibida no DataGrid
-        public ObservableCollection<LocalizacaoGeo> Resultados { get; set; } = new();
+    public ObservableCollection<double> Locais { get; set; } = new();
+    public ObservableCollection<LocalizacaoGeo> Dados { get; set; } = new();
 
-        // ── Comandos dos botões ──────────────────────────────────────────────
+    public ObservableCollection<LocalizacaoGeo> Resultados { get; set; } = new();
 
-        public ICommand BuscarCommand { get; }
-        public ICommand GerarPdfCommand { get; }
-        public ICommand HistoricoCommand { get; }
+    // Comandos
+    public ICommand BuscarCommand { get; }
 
-        // ── Construtor ───────────────────────────────────────────────────────
+    public ICommand LimparCommand { get; }
+    public ICommand GerarPdfCommand { get; }
+    public ICommand HistoricoCommand { get; }
 
-        public MainViewModel()
+    public ICommand CalcularCommand { get; }
+
+    public MainViewModel()
+    {
+        CalcularCommand = new RelayCommand(() => Calcular());
+
+        _localizacaoRepo = new LocalizacaoRepository();
+        _analiseRepo = new AnaliseRepository();
+
+        BuscarCommand = new RelayCommand(async () => await BuscarAsync());
+        GerarPdfCommand = new RelayCommand(async () => await GerarPdfAsync()); // Alterado para Async
+        HistoricoCommand = new RelayCommand(async () => await CarregarHistoricoAsync());
+
+        LimparCommand = new RelayCommand(() => Limpar());
+
+        _ = CarregarRankingAsync();
+
+    }
+
+    private async Task BuscarAsync()
+    {
+        try
         {
-            _localizacaoRepo = new LocalizacaoRepository();
-            _analiseRepo = new AnaliseRepository();
+            // Busca os dados brutos da API
+            var listaDeBanco = await _localizacaoRepo.BuscarTodasAsync();
 
-            BuscarCommand = new RelayCommand(async () => await BuscarAsync());
-            GerarPdfCommand = new RelayCommand(GerarPdf);
-            HistoricoCommand = new RelayCommand(async () => await CarregarHistoricoAsync());
+            // Limpa a lista atual para garantir que não haja duplicatas na tela
+            Dados.Clear();
 
-            // Carrega os dados do Firebase ao abrir a janela
-            _ = CarregarHistoricoAsync();
-        }
-
-        // ── Métodos dos comandos ─────────────────────────────────────────────
-
-        /// <summary>
-        /// Busca localização digitada, salva no Firebase e atualiza a tela.
-        /// </summary>
-        private async Task BuscarAsync()
-        {
-            if (string.IsNullOrWhiteSpace(Localizacao))
+            // Adiciona tudo o que veio da API diretamente na lista
+            foreach (var item in listaDeBanco)
             {
-                MessageBox.Show("Digite uma localização para buscar.", "Atenção");
+                Dados.Add(item);
+            }
+
+            // Controle de Erro simples para o caso de a API retornar uma lista vazia
+            if (Dados.Count == 0)
+            {
+                MessageBox.Show("A API retornou uma lista vazia.");
+            }
+
+            LogService.RegistrarLog($"Carga de dados realizada. Itens carregados: {Dados.Count}");
+        }
+        catch (Exception ex)
+        {
+            LogService.RegistrarLog($"Erro ao carregar dados: {ex.Message}", "ERROR");
+            MessageBox.Show("Erro ao buscar dados na API. Verifique a conexão.");
+        }
+    }
+
+    // Limpar a lista de dados 
+    private void Limpar()
+    {
+        Dados.Clear();
+    }
+
+    private async Task CarregarHistoricoAsync()
+    {
+        try
+        {
+            var lista = await _localizacaoRepo.BuscarTodasAsync();
+            Resultados.Clear();
+            Locais.Clear();
+
+            foreach (var item in lista) Resultados.Add(item);
+
+            LogService.RegistrarLog("Histórico carregado do Firebase.");
+        }
+        catch (Exception ex)
+        {
+            LogService.RegistrarLog($"Falha ao carregar histórico: {ex.Message}", "ERROR");
+        }
+    }
+
+    // Implementação do Cálculo de distância
+    private void Calcular()
+    {
+        try
+        {
+            // Função para converter aceitando ponto ou vírgula
+            double converter(string valor)
+            {
+                if (string.IsNullOrWhiteSpace(valor)) return 0;
+                string limpo = valor.Replace(',', '.');
+                if (double.TryParse(limpo, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double res))
+                    return res;
+                return 0;
+            }
+
+            double lat1 = converter(LatitudeOrigem);
+            double lon1 = converter(LongitudeOrigem);
+            double lat2 = converter(Latitude);
+            double lon2 = converter(Longitude);
+
+            // Debug visual para você ver o que ele leu
+            if (lat1 == 0 && lat2 == 0)
+            {
+                ResultadoFormatado = "Atenção: Coordenadas zeradas.";
                 return;
             }
 
-            try
-            {
-                // Cria o objeto com os dados da busca
-                var novaLocalizacao = new LocalizacaoGeo
-                {
-                    Logradouro = Localizacao,
-                    // Latitude e Longitude seriam preenchidos por um serviço de geocoding
-                    // Ex: Google Maps API, ViaCEP, etc.
-                    Latitude = 0,
-                    Longitude = 0
-                };
-
-                // Salva no Firebase (único ponto de acesso ao banco)
-                var salvo = await _localizacaoRepo.SalvarAsync(novaLocalizacao);
-
-                // Atualiza a lista na tela
-                Resultados.Add(salvo);
-
-                // Simula uma temperatura para exibir no ListBox
-                // (aqui você integraria com a API de clima do seu projeto)
-                Temperaturas.Add(new Random().Next(15, 35));
-
-                MessageBox.Show($"Localização '{Localizacao}' salva com sucesso!\nId: {salvo.Id}", "Firebase ✓");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao salvar no Firebase:\n{ex.Message}", "Erro");
-            }
+            double d = CalcularDistancia(lat1, lon1, lat2, lon2);
+            ResultadoFormatado = $"Sucesso! Distância: {d:F2} km";
         }
-
-        /// <summary>
-        /// Carrega todo o histórico do Firebase e exibe no DataGrid.
-        /// </summary>
-        private async Task CarregarHistoricoAsync()
+        catch (Exception ex)
         {
-            try
-            {
-                var lista = await _localizacaoRepo.BuscarTodasAsync();
-
-                Resultados.Clear();
-                Temperaturas.Clear();
-
-                foreach (var item in lista)
-                {
-                    Resultados.Add(item);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Erro ao carregar histórico:\n{ex.Message}", "Erro");
-            }
-        }
-
-        private void GerarPdf()
-        {
-            MessageBox.Show("Funcionalidade de gerar PDF será implementada aqui.", "Gerar PDF");
+            ResultadoFormatado = "Erro interno: " + ex.Message;
         }
     }
+
+    private double CalcularDistancia(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double R = 6371; // Raio da Terra em km
+        double dLat = ToRadians(lat2 - lat1);
+        double dLon = ToRadians(lon2 - lon1);
+        double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                   Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
+                   Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+        double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        return R * c;
+    }
+
+    private async Task CarregarRankingAsync()
+    {
+        try
+        {
+            var lista = await _localizacaoRepo.BuscarTodasAsync();
+
+            Resultados.Clear();
+            foreach (var item in lista)
+            {
+                Resultados.Add(item);
+            }
+
+            // Aplicamos o filtro inicial caso haja algo escrito no campo de filtro
+            AplicarFiltro();
+
+            LogService.RegistrarLog("Ranking atualizado.");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro ao carregar ranking: " + ex.Message);
+        }
+    }
+
+    // Método para aplicar o filtro na lista que a DataGrid exibe
+    private void AplicarFiltro()
+    {
+        var view = CollectionViewSource.GetDefaultView(Resultados);
+
+        if (string.IsNullOrWhiteSpace(FiltroTexto))
+        {
+            view.Filter = null;
+        }
+
+        else
+        {
+            view.Filter = (obj) =>
+            {
+                var item = obj as LocalizacaoGeo;
+                if (item == null) return false;
+
+                // Lógica dinâmica baseada no que foi selecionado no ComboBox
+                return TipoFiltro switch
+                {
+                    "Bairro" => item.Bairro?.Contains(FiltroTexto, StringComparison.OrdinalIgnoreCase) ?? false,
+                    "Logradouro" => item.Logradouro?.Contains(FiltroTexto, StringComparison.OrdinalIgnoreCase) ?? false,
+                    "CEP" => item.Cep?.Contains(FiltroTexto, StringComparison.OrdinalIgnoreCase) ?? false,
+                    _ => true
+                };
+            };
+        }
+    }
+
+
+    private double ToRadians(double angle) => Math.PI * angle / 180.0;
+
+    private async Task GerarPdfAsync()
+    {
+        if (Resultados == null || !Resultados.Any())
+        {
+            MessageBox.Show("Não há dados no histórico para gerar o PDF.", "Aviso");
+            return;
+        }
+
+        try
+        {
+            string caminhoPdf = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Relatorio_Geografico.pdf");
+
+            await Task.Run(() =>
+            {
+                Document.Create(container =>
+                {
+                    container.Page(page =>
+                    {
+                        page.Size(PageSizes.A4.Landscape());
+                        page.Margin(1, Unit.Centimetre);
+                        page.DefaultTextStyle(x => x.FontSize(9).FontFamily(Fonts.Verdana));
+
+                        page.Header().Row(row =>
+                        {
+                            row.RelativeItem().Text("Relatório de Localizações")
+                                .FontSize(16).SemiBold().FontColor(Colors.Blue.Medium);
+
+                            row.RelativeItem().AlignRight().Text(DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
+                        });
+
+                        page.Content().PaddingVertical(10).Table(table =>
+                        {
+                            // Definição de colunas 
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.ConstantColumn(30);
+                                columns.RelativeColumn(3);
+                                columns.ConstantColumn(40);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(1.2f);
+                                columns.RelativeColumn(1.2f);
+                                columns.RelativeColumn(1.2f);
+                                columns.RelativeColumn(1.5f);
+                            });
+
+                            // Cabeçalho 
+                            table.Header(header =>
+                            {
+                                header.Cell().Element(c => HeaderStyle(c)).Text("ID").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Logradouro").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Nº").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Bairro").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("CEP").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Lat").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Long").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Data/Hora").FontColor(Colors.White).Bold();
+                            });
+
+                            // Loop 
+                            foreach (var item in Resultados)
+                            {
+                                table.Cell().Element(c => CellStyle(c)).Text(item.Id ?? "-").FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).Text(item.Logradouro ?? "-").FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).AlignCenter().Text(item.Numero ?? "-").FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).Text(item.Bairro ?? "-").FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).AlignCenter().Text(item.Cep ?? "-").FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).Text(item.Latitude.ToString("F5")).FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).Text(item.Longitude.ToString("F5")).FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).AlignCenter().Text(item.Timestamp).FontColor(Colors.Black);
+                            }
+                        });
+
+                        page.Footer().AlignCenter().Text(x =>
+                        {
+                            x.Span("Página ");
+                            x.CurrentPageNumber();
+                        });
+                    });
+                })
+                .GeneratePdf(caminhoPdf);
+            });
+
+            LogService.RegistrarLog($"PDF gerado: {caminhoPdf}", "SUCCESS");
+            Process.Start(new ProcessStartInfo(caminhoPdf) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            LogService.RegistrarLog($"Erro PDF: {ex.Message}", "ERROR");
+            MessageBox.Show($"Erro ao gerar o PDF: {ex.Message}");
+        }
+    }
+
+    // Estilo do Cabeçalho
+    static QuestPDF.Infrastructure.IContainer HeaderStyle(QuestPDF.Infrastructure.IContainer c) =>
+        c.Border(0.5f)                       // Borda 
+         .BorderColor(Colors.Blue.Darken2)          // Cor da linha
+         .Background(Colors.Blue.Darken1)   // Cor de fundo das colunas
+         .Padding(2)
+         .AlignCenter()
+         .AlignMiddle();
+    
+
+    // Estilo da Célula
+    static QuestPDF.Infrastructure.IContainer CellStyle(QuestPDF.Infrastructure.IContainer c) =>
+        c.Border(0.5f)                       // Grelha visível
+         .BorderColor(Colors.Grey.Lighten1)  // Linhas internas 
+         .Padding(2)
+         .AlignLeft()                        // Alinhamento padrão à esquerda
+         .AlignMiddle();
 }
