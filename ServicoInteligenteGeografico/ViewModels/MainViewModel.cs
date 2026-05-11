@@ -88,8 +88,9 @@ public class MainViewModel : BaseViewModel
     }
 
     public ObservableCollection<double> Locais { get; set; } = new();
-    public ObservableCollection<LocalizacaoGeo> Resultados { get; set; } = new();
+    public ObservableCollection<LocalizacaoGeo> Dados { get; set; } = new();
 
+    public ObservableCollection<LocalizacaoGeo> Resultados { get; set; } = new();
 
     // Comandos
     public ICommand BuscarCommand { get; }
@@ -109,44 +110,38 @@ public class MainViewModel : BaseViewModel
         GerarPdfCommand = new RelayCommand(async () => await GerarPdfAsync()); // Alterado para Async
         HistoricoCommand = new RelayCommand(async () => await CarregarHistoricoAsync());
 
-        _ = CarregarHistoricoAsync();
+        _ = CarregarRankingAsync();
+
     }
 
     private async Task BuscarAsync()
     {
-        // 1. Verifica se o usuário digitou algo
-        if (string.IsNullOrWhiteSpace(Localizacao))
-        {
-            MessageBox.Show("Digite um nome para buscar.");
-            return;
-        }
-
         try
         {
-            // Busca da API/Firebase
+            // Busca os dados brutos da API
             var listaDeBanco = await _localizacaoRepo.BuscarTodasAsync();
 
-            // Filtra para aparecer apenas o que buscou, usando StringComparison para ignorar maiúsculas/minúsculas
-            var filtrado = listaDeBanco
-                .Where(x => x.Logradouro.Contains(Localizacao, StringComparison.OrdinalIgnoreCase) ||
-                            x.Bairro.Contains(Localizacao, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            // Limpa a lista atual para garantir que não haja duplicatas na tela
+            Dados.Clear();
 
-            Resultados.Clear();
-            foreach (var item in filtrado)
+            // Adiciona tudo o que veio da API diretamente na lista
+            foreach (var item in listaDeBanco)
             {
-                Resultados.Add(item);
+                Dados.Add(item);
             }
 
-            if (Resultados.Count == 0)
+            // Controle de Erro simples para o caso de a API retornar uma lista vazia
+            if (Dados.Count == 0)
             {
-                MessageBox.Show("Nenhum registro encontrado com esse nome.");
+                MessageBox.Show("A API retornou uma lista vazia.");
             }
 
+            LogService.RegistrarLog($"Carga de dados realizada. Itens carregados: {Dados.Count}");
         }
         catch (Exception ex)
         {
-            LogService.RegistrarLog($"Erro: {ex.Message}", "ERROR");
+            LogService.RegistrarLog($"Erro ao carregar dados: {ex.Message}", "ERROR");
+            MessageBox.Show("Erro ao buscar dados na API. Verifique a conexão.");
         }
     }
 
@@ -216,6 +211,29 @@ public class MainViewModel : BaseViewModel
         return R * c;
     }
 
+    private async Task CarregarRankingAsync()
+    {
+        try
+        {
+            var lista = await _localizacaoRepo.BuscarTodasAsync();
+
+            Resultados.Clear();
+            foreach (var item in lista)
+            {
+                Resultados.Add(item);
+            }
+
+            // Aplicamos o filtro inicial caso haja algo escrito no campo de filtro
+            AplicarFiltro();
+
+            LogService.RegistrarLog("Ranking atualizado.");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro ao carregar ranking: " + ex.Message);
+        }
+    }
+
     // Método para aplicar o filtro na lista que a DataGrid exibe
     private void AplicarFiltro()
     {
@@ -225,6 +243,7 @@ public class MainViewModel : BaseViewModel
         {
             view.Filter = null;
         }
+
         else
         {
             view.Filter = (obj) =>
@@ -243,6 +262,7 @@ public class MainViewModel : BaseViewModel
             };
         }
     }
+
 
     private double ToRadians(double angle) => Math.PI * angle / 180.0;
 
