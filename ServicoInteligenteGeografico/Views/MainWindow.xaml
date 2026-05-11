@@ -137,17 +137,18 @@
 
                         <Border Background="#E8F5E9" Margin="0,10" Padding="5" CornerRadius="3">
                             <TextBlock Text="{Binding ResultadoFormatado}" 
-                       Foreground="Green" 
-                       HorizontalAlignment="Center" 
-                       FontSize="14" FontWeight="Bold" />
+                                       Foreground="Green" 
+                                       HorizontalAlignment="Center" 
+                                       FontSize="14" 
+                                       FontWeight="Bold" />
                         </Border>
 
-                        <Button Content="Calcular Agora" 
-                Command="{Binding CalcularCommand}" 
-                Height="30" 
-                Background="#007ACC" 
-                Foreground="White"
-                Cursor="Hand"/>
+                        <Button Content="Calcular" 
+                                Command="{Binding CalcularCommand}" 
+                                Height="30" 
+                                Background="#007ACC" 
+                                Foreground="White"
+                                Cursor="Hand"/> 
                     </StackPanel>
                 </Border>
 
