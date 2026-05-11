@@ -22,6 +22,37 @@ public class MainViewModel : BaseViewModel
 
     private readonly MapasApiService _mapasApiService;
 
+
+    private string _buscaApiId = string.Empty;
+    public string BuscaApiId
+    {
+        get => _buscaApiId;
+        set { _buscaApiId = value; OnPropertyChanged(nameof(BuscaApiId)); }
+    }
+
+    private string _buscaApiLogradouro = string.Empty;
+    public string BuscaApiLogradouro
+    {
+        get => _buscaApiLogradouro;
+        set { _buscaApiLogradouro = value; OnPropertyChanged(nameof(BuscaApiLogradouro)); }
+    }
+
+    private string _statusApi = string.Empty;
+    public string StatusApi
+    {
+        get => _statusApi;
+        set { _statusApi = value; OnPropertyChanged(nameof(StatusApi)); }
+    }
+
+    private bool _carregandoApi = false;
+    public bool CarregandoApi
+    {
+        get => _carregandoApi;
+        set { _carregandoApi = value; OnPropertyChanged(nameof(CarregandoApi)); }
+    }
+
+    public ObservableCollection<LocalizacaoGeo> ResultadosApi { get; set; } = new();
+
     // Propriedades e Listas...
     private string _localizacao = string.Empty;
     public string Localizacao
