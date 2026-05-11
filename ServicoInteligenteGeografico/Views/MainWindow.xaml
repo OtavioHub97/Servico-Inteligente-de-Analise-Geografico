@@ -148,6 +148,7 @@
                         <Button Content="Calcular" 
                                 Command="{Binding CalcularCommand}" 
                                 Height="30" 
+                                FontWeight="Bold"
                                 Background="#007ACC" 
                                 Foreground="White"
                                 Cursor="Hand"/> 
