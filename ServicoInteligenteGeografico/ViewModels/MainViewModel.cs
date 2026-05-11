@@ -270,7 +270,7 @@ public class MainViewModel : BaseViewModel
 
                         page.Header().Row(row =>
                         {
-                            row.RelativeItem().Text("Relatório Histórico de Localizações")
+                            row.RelativeItem().Text("Relatório de Localizações")
                                 .FontSize(16).SemiBold().FontColor(Colors.Blue.Medium);
 
                             row.RelativeItem().AlignRight().Text(DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
@@ -278,6 +278,7 @@ public class MainViewModel : BaseViewModel
 
                         page.Content().PaddingVertical(10).Table(table =>
                         {
+                            // Definição de colunas 
                             table.ColumnsDefinition(columns =>
                             {
                                 columns.ConstantColumn(30);
@@ -290,30 +291,30 @@ public class MainViewModel : BaseViewModel
                                 columns.RelativeColumn(1.5f);
                             });
 
-                            // 3. Cabeçalho corrigido com Lambda
+                            // Cabeçalho 
                             table.Header(header =>
                             {
-                                header.Cell().Element(c => HeaderStyle(c)).Text("ID");
-                                header.Cell().Element(c => HeaderStyle(c)).Text("Logradouro");
-                                header.Cell().Element(c => HeaderStyle(c)).Text("Nº");
-                                header.Cell().Element(c => HeaderStyle(c)).Text("Bairro");
-                                header.Cell().Element(c => HeaderStyle(c)).Text("CEP");
-                                header.Cell().Element(c => HeaderStyle(c)).Text("Lat");
-                                header.Cell().Element(c => HeaderStyle(c)).Text("Long");
-                                header.Cell().Element(c => HeaderStyle(c)).Text("Data/Hora");
+                                header.Cell().Element(c => HeaderStyle(c)).Text("ID").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Logradouro").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Nº").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Bairro").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("CEP").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Lat").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Long").FontColor(Colors.White).Bold();
+                                header.Cell().Element(c => HeaderStyle(c)).Text("Data/Hora").FontColor(Colors.White).Bold();
                             });
 
-                            // 4. Loop corrigido com Lambda
+                            // Loop 
                             foreach (var item in Resultados)
                             {
-                                table.Cell().Element(c => CellStyle(c)).Text(item.Id ?? "-");
-                                table.Cell().Element(c => CellStyle(c)).Text(item.Logradouro ?? "-");
-                                table.Cell().Element(c => CellStyle(c)).AlignCenter().Text(item.Numero ?? "-");
-                                table.Cell().Element(c => CellStyle(c)).Text(item.Bairro ?? "-");
-                                table.Cell().Element(c => CellStyle(c)).AlignCenter().Text(item.Cep ?? "-");
-                                table.Cell().Element(c => CellStyle(c)).Text(item.Latitude.ToString("F5"));
-                                table.Cell().Element(c => CellStyle(c)).Text(item.Longitude.ToString("F5"));
-                                table.Cell().Element(c => CellStyle(c)).AlignCenter().Text(item.Timestamp);
+                                table.Cell().Element(c => CellStyle(c)).Text(item.Id ?? "-").FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).Text(item.Logradouro ?? "-").FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).AlignCenter().Text(item.Numero ?? "-").FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).Text(item.Bairro ?? "-").FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).AlignCenter().Text(item.Cep ?? "-").FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).Text(item.Latitude.ToString("F5")).FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).Text(item.Longitude.ToString("F5")).FontColor(Colors.Black);
+                                table.Cell().Element(c => CellStyle(c)).AlignCenter().Text(item.Timestamp).FontColor(Colors.Black);
                             }
                         });
 
@@ -337,10 +338,21 @@ public class MainViewModel : BaseViewModel
         }
     }
 
-    // Funções auxiliares (Certifique-se que estão acessíveis no escopo ou como static)
+    // Estilo do Cabeçalho
     static QuestPDF.Infrastructure.IContainer HeaderStyle(QuestPDF.Infrastructure.IContainer c) =>
-        c.Background(Colors.Grey.Lighten3).Padding(2).Border(0.5f).AlignCenter();
+        c.Border(0.5f)                       // Borda 
+         .BorderColor(Colors.Blue.Darken2)          // Cor da linha
+         .Background(Colors.Blue.Darken1)   // Cor de fundo das colunas
+         .Padding(2)
+         .AlignCenter()
+         .AlignMiddle();
+    
 
+    // Estilo da Célula
     static QuestPDF.Infrastructure.IContainer CellStyle(QuestPDF.Infrastructure.IContainer c) =>
-        c.Padding(2).Border(0.5f).AlignMiddle();
+        c.Border(0.5f)                       // Grelha visível
+         .BorderColor(Colors.Grey.Lighten1)  // Linhas internas 
+         .Padding(2)
+         .AlignLeft()                        // Alinhamento padrão à esquerda
+         .AlignMiddle();
 }
