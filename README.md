@@ -69,3 +69,13 @@ dotnet add package FirebaseDatabase.net --version 4.2.0
 
 
 
+**4.2 - Terminal apontando para a pasta errada**
+Ao tentar instalar os pacotes pelo terminal do Visual Studio, o comando retornou o erro Não foi possível encontrar nenhum projeto. O terminal estava na pasta raiz do repositório, e não dentro da pasta do projeto .csproj.
+Solução: navegar para a pasta correta com cd ServicoInteligenteGeografico antes de rodar os comandos.
+
+
+
+
+**4.3 - Dificuldade com o cálculo da distância entre os pontos**
+
+
