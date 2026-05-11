@@ -174,7 +174,7 @@ public class MainViewModel : BaseViewModel
     }
 
     // Implementação do Cálculo de distância
-    private void Calcular()
+    private async Task Calcular()
     {
         try
         {
@@ -193,15 +193,15 @@ public class MainViewModel : BaseViewModel
             double lat2 = converter(Latitude);
             double lon2 = converter(Longitude);
 
-            // Debug visual para você ver o que ele leu
+            // Debug visual 
             if (lat1 == 0 && lat2 == 0)
             {
-                ResultadoFormatado = "Atenção: Coordenadas zeradas.";
+                ResultadoFormatado = "Atenção: Destino não informado.";
                 return;
             }
 
             double d = CalcularDistancia(lat1, lon1, lat2, lon2);
-            ResultadoFormatado = $"Sucesso! Distância: {d:F2} km";
+            ResultadoFormatado = $"Distância: {d:F2} km";
         }
         catch (Exception ex)
         {
