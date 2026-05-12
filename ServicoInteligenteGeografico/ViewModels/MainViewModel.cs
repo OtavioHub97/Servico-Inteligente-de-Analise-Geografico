@@ -151,12 +151,14 @@ public class MainViewModel : BaseViewModel
 
             Dados.Clear();
 
+            // Adiciona os itens retornados pela API à coleção de dados
             foreach (var item in listaDeBanco)
                 Dados.Add(item);
 
             if (Dados.Count == 0)
                 MessageBox.Show("A API retornou uma lista vazia.");
 
+            // Registra o log informando a quantidade de itens carregados
             LogService.RegistrarLog($"Carga de dados realizada. Itens carregados: {Dados.Count}");
         }
         catch (Exception ex)
@@ -175,6 +177,7 @@ public class MainViewModel : BaseViewModel
     {
         try
         {
+            // Função auxiliar para converter string em double, tratando vírgula e ponto como separadores decimais
             double converter(string valor)
             {
                 if (string.IsNullOrWhiteSpace(valor)) return 0;
@@ -185,6 +188,7 @@ public class MainViewModel : BaseViewModel
                 return 0;
             }
 
+            // Converte as coordenadas de origem e destino
             double lat1 = converter(LatitudeOrigem);
             double lon1 = converter(LongitudeOrigem);
             double lat2 = converter(Latitude);
@@ -196,6 +200,7 @@ public class MainViewModel : BaseViewModel
                 return;
             }
 
+            // Calcula a distância usando a fórmula de Haversine
             double d = CalcularDistancia(lat1, lon1, lat2, lon2);
             ResultadoFormatado = $"Distância: {d:F2} km";
         }
@@ -207,6 +212,7 @@ public class MainViewModel : BaseViewModel
 
     private double CalcularDistancia(double lat1, double lon1, double lat2, double lon2)
     {
+        // Fórmula de Haversine para calcular a distância entre dois pontos geográficos
         const double R = 6371;
         double dLat = ToRadians(lat2 - lat1);
         double dLon = ToRadians(lon2 - lon1);
@@ -224,6 +230,8 @@ public class MainViewModel : BaseViewModel
             var lista = await _mapasApiService.BuscarTodasAsync();
 
             Resultados.Clear();
+
+            // Adiciona os itens retornados pela API à coleção de resultados
             foreach (var item in lista)
                 Resultados.Add(item);
 
@@ -247,11 +255,13 @@ public class MainViewModel : BaseViewModel
         }
         else
         {
+            // Define o filtro para a coleção, verificando o tipo de filtro selecionado
             view.Filter = (obj) =>
             {
                 var item = obj as LocalizacaoGeo;
                 if (item == null) return false;
 
+                // Verifica o tipo de filtro selecionado e aplica a comparação
                 return TipoFiltro switch
                 {
                     "Bairro" => item.Bairro?.Contains(FiltroTexto, StringComparison.OrdinalIgnoreCase) ?? false,
@@ -283,10 +293,12 @@ public class MainViewModel : BaseViewModel
                 {
                     container.Page(page =>
                     {
+                        // Configurações da página
                         page.Size(PageSizes.A4.Landscape());
                         page.Margin(1, Unit.Centimetre);
                         page.DefaultTextStyle(x => x.FontSize(9).FontFamily(Fonts.Verdana));
 
+                        // Cabeçalho do relatório
                         page.Header().Row(row =>
                         {
                             row.RelativeItem().Text("Relatório de Localizações")
@@ -308,6 +320,7 @@ public class MainViewModel : BaseViewModel
                                 columns.RelativeColumn(1.5f);
                             });
 
+                            // Cabeçalho da tabela
                             table.Header(header =>
                             {
                                 header.Cell().Element(c => HeaderStyle(c)).Text("ID").FontColor(Colors.White).Bold();
@@ -320,6 +333,7 @@ public class MainViewModel : BaseViewModel
                                 header.Cell().Element(c => HeaderStyle(c)).Text("Data/Hora").FontColor(Colors.White).Bold();
                             });
 
+                            // Dados da tabela
                             foreach (var item in Resultados)
                             {
                                 table.Cell().Element(c => CellStyle(c)).Text(item.Id ?? "-").FontColor(Colors.Black);
@@ -333,6 +347,7 @@ public class MainViewModel : BaseViewModel
                             }
                         });
 
+                        // Rodapé com número de página
                         page.Footer().AlignCenter().Text(x =>
                         {
                             x.Span("Página ");
@@ -353,10 +368,12 @@ public class MainViewModel : BaseViewModel
         }
     }
 
+    // Estilos para o PDF
     static QuestPDF.Infrastructure.IContainer HeaderStyle(QuestPDF.Infrastructure.IContainer c) =>
         c.Border(0.5f).BorderColor(Colors.Blue.Darken2).Background(Colors.Blue.Darken1)
          .Padding(2).AlignCenter().AlignMiddle();
 
+    // Estilos para as células de dados
     static QuestPDF.Infrastructure.IContainer CellStyle(QuestPDF.Infrastructure.IContainer c) =>
         c.Border(0.5f).BorderColor(Colors.Grey.Lighten1)
          .Padding(2).AlignLeft().AlignMiddle();
