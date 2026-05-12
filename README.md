@@ -54,14 +54,12 @@ O arquivo já está listado no .gitignore do projeto, então não há risco de s
 ├── 📂Data
 │   └── Database.cs
 ├── 📂Models
-│   ├── AnaliseGeo.cs
 │   └── LocalizacaoGeo.cs
 ├── 📂Repositories
-│   ├── AnaliseRepository.cs
 │   └── LocalizacaoRepository.cs
 ├── 📂Services
-│   ├── AnaliseGeoService.cs
 │   └── LogService.cs
+│   └── MapaService.cs
 ├── 📂ViewModels
 │   ├── BaseViewModel.cs
 │   └── MainViewModel.cs
@@ -96,6 +94,10 @@ Durante o desenvolvimento da minha parte no projeto, acabei esbarrando em alguns
 No início da implantação, houve dificuldade no entendimento estrutural do projeto. Devido à necessidade de integração com outros projetos, foi necessária uma pesquisa mais aprofundada para definir e organizar adequadamente a estrutura de pastas e classes.
 
 Também houve dificuldade relacionada ao tempo disponível para implementar o retorno dos registros recebidos com sucesso pela Squad 2. Como essa funcionalidade exigia implementação em ambas as pontas (Projeto Squad 3 e Squad 2), a proposta de retorno dos registros integrados foi apresentada à Squad 2. Contudo, em razão do prazo de entrega do projeto, não foi possível concluir essa implementação dentro do período previsto.
+
+Nossa intenção era apresentar insights mais interativos, como informações de temperatura, clima, população e área. Contudo, devido à necessidade de implementar esses atributos também nas demais squads, haveria um aumento significativo na demanda de trabalho de todas as equipes envolvidas.
+
+Por esse motivo, optamos por manter apenas os dados básicos, garantindo a entrega dentro do prazo previsto e a estabilidade da integração entre os projetos.
 
 * **Curva de aprendizado com o Firebase e divisão de tarefas:**
   Sair do modelo tradicional de banco de dados e entender como o Firebase funciona (com coleções, documentos e chamadas assíncronas) foi meio confuso no começo. Tive bastante dificuldade para fazer essa configuração inicial rodar redonda. No fim das contas, para o projeto não travar, fizemos uma rotação nas tarefas da squad: um colega que tinha mais facilidade assumiu a sequência da integração com o banco, e eu foquei em deixar a parte de modelagem, logs e tratamento de erros robusta.
