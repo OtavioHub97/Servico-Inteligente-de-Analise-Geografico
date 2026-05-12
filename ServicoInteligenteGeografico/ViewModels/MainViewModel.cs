@@ -256,7 +256,7 @@ public class MainViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            // ✅ Agora mostra o erro real
+            //Agora mostra o erro real
             MessageBox.Show($"Erro ao carregar ranking:\n{ex.Message}", "Erro de API");
         }
     }
