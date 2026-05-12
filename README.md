@@ -85,6 +85,9 @@ dotnet add package FirebaseDatabase.net --version 4.2.0
 Ao tentar instalar os pacotes pelo terminal do Visual Studio, o comando retornou o erro Não foi possível encontrar nenhum projeto. O terminal estava na pasta raiz do repositório, e não dentro da pasta do projeto .csproj.
 Solução: navegar para a pasta correta com cd ServicoInteligenteGeografico antes de rodar os comandos.
 
+**formato da API**
+Formato inesperado da API do Squad 2 — Ao tentar consumir a API, o código quebrava porque esperava receber um array [...] diretamente, mas a API retornava um objeto wrapper { "mensagem": "...", "localizacoes": [...] }. Foi necessário criar a classe RespostaMapas para tratar esse formato.
+
 **5.3 - Dificuldades Encontradas e Soluções (Otavio)**
 
 Durante o desenvolvimento da minha parte no projeto, acabei esbarrando em alguns desafios técnicos bem interessantes que serviram de aprendizado:
