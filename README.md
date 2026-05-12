@@ -31,6 +31,24 @@ Um Serviço de Análise de Dados Geográficos especializado no processamento de 
 
 ### 4 - 📂 Estrutura do Projeto:
 
+
+ **Configuração do Firebase ao clonar o repositório**
+
+**⚠️ Atenção: O arquivo serviceAccountKey.json não está incluído no repositório por razões de segurança. Ele contém credenciais privadas do Firebase e nunca deve ser versionado no Git.**
+
+Ao clonar o projeto, cada membro do time precisa gerar sua própria chave seguindo os passos abaixo:
+Passo 1 — Acesse console.firebase.google.com e abra o projeto ServiceGeo
+Passo 2 — Clique no ícone de engrenagem ⚙️ → "Configurações do projeto" → aba "Contas de serviço"
+Passo 3 — Clique em "Gerar nova chave privada" e confirme no popup
+Passo 4 — Salve o arquivo baixado com o nome exato: serviceAccountKey.json
+Passo 5 — Cole o arquivo em dois lugares:
+
+Raiz do projeto: ServicoInteligenteGeografico/
+Pasta de saída: ServicoInteligenteGeografico/bin/Debug/net8.0-windows/
+
+Passo 6 — No Visual Studio, clique com botão direito no arquivo → "Propriedades" → "Copiar para diretório de saída" → selecione "Copiar sempre"
+O arquivo já está listado no .gitignore do projeto, então não há risco de ser enviado ao repositório por acidente.
+
 ```
 📂SistemaInteligenteGeografico
 ├── 📂Commands
