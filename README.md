@@ -59,7 +59,7 @@ O arquivo já está listado no .gitignore do projeto, então não há risco de s
 │   └── LocalizacaoRepository.cs
 ├── 📂Services
 │   └── LogService.cs
-│   └── MapaService.cs
+│   └── MapaApiService.cs
 ├── 📂ViewModels
 │   ├── BaseViewModel.cs
 │   └── MainViewModel.cs
