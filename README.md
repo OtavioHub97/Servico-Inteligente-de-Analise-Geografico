@@ -17,17 +17,16 @@ Um Serviço de Análise de Dados Geográficos especializado no processamento de 
 ## 3 - Requisitos do Sistema:
 ### 3.1 - Requisitos Funcionais (RF):
 
-**[RF-001]** Consumir dados de pedidos e localização via API do Squad2. <br>
-**[RF-002]** Calcular a distância entre pontos geográficos. <br>
-**[RF-003]** Agrupar locais região/bairro. <br>
-**[RF-004]** Gerar ranking dos locais. <br>
-**[RF-005]** Disponibilizar os insights gerados através de uma API REST própria. <br>
+**[RF01] Ingestão Inteligente:** Consumo automatizado da API do Squad 2 para captura de coordenadas em tempo real. <br>
+**[RF02] Geoprocessamento Avançado:** Cálculo de distância entre pontos utilizando a Fórmula de Haversine (precisão técnica). <br>
+**[RF03] Agrupamento:** Identificação de regiões com maior densidade de uso. <br>
+**[RF04] Ranking Dinâmico:** Listagem dos locais mais relevantes com base na frequência de buscas ou visitas. <br>
 
 ### 3.2 - Requisitos Não Funcionais (RNF):
 
-**[RNF-001] Persistência:** Os dados analíticos processados devem ser armazenados no Firebase. <br>
-**[RNF-002] Performance:** O cálculo de distância e agrupamento deve ser otimizado para respostas em tempo real. <br>
-**[RNF-003] Escalabilidade:** A arquitetura de microserviço deve suportar o aumento de volume de dados geográficos. <br>
+**[RNF01] Persistência:** Os dados analíticos processados devem ser armazenados no Firebase. <br>
+**[RNF02] Performance:** O cálculo de distância e agrupamento deve ser otimizado para respostas em tempo real. <br>
+**[RNF03] Escalabilidade:** A arquitetura de microserviço deve suportar o aumento de volume de dados geográficos. <br>
 
 ### 4 - 📂 Estrutura do Projeto:
 
