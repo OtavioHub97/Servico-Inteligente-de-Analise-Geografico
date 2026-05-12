@@ -11,9 +11,7 @@ namespace ServicoInteligenteGeografico.Data
     /// </summary>
     public class Database
     {
-        // ✅ URL única do seu projeto Firebase (Realtime Database)
-        // Troque pelo link do SEU projeto no console do Firebase:
-        // Firebase Console → Realtime Database → copie a URL que aparece no topo
+        
         private const string FirebaseUrl = "https://servicegeo-b5eb5-default-rtdb.firebaseio.com/";
 
         // Instância única do cliente (padrão Singleton)
