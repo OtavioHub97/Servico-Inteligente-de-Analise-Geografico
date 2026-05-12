@@ -74,27 +74,18 @@ O arquivo já está listado no .gitignore do projeto, então não há risco de s
 ```
 ## 5 - Dificuldades encontradas no decorrer do projeto
 
-
-
-**5.1 - Pacotes do Firebase não instalados**
+**5.1 - Pacotes do Firebase não instalados** <br>
 Após adicionar os arquivos de integração ao projeto WPF, a compilação falhou com erros do tipo namespace 'FirebaseAdmin' não pode ser encontrado. O motivo foi que os pacotes NuGet do Firebase ainda não haviam sido instalados no projeto.
 Solução: executar os comandos abaixo no terminal dentro da pasta do projeto:
 bashcd ServicoInteligenteGeografico
 dotnet add package FirebaseAdmin --version 3.1.0
 dotnet add package FirebaseDatabase.net --version 4.2.0
 
-
-
-**5.2 - Terminal apontando para a pasta errada**
+**5.2 - Terminal apontando para a pasta errada** <br>
 Ao tentar instalar os pacotes pelo terminal do Visual Studio, o comando retornou o erro Não foi possível encontrar nenhum projeto. O terminal estava na pasta raiz do repositório, e não dentro da pasta do projeto .csproj.
 Solução: navegar para a pasta correta com cd ServicoInteligenteGeografico antes de rodar os comandos.
 
-
-
-
-**5.3 - Dificuldade com o cálculo da distância entre os pontos**
-
-**5.4 - Dificuldades Encontradas e Soluções (Otavio)**
+**5.3 - Dificuldades Encontradas e Soluções (Otavio)**
 
 Durante o desenvolvimento da minha parte no projeto, acabei esbarrando em alguns desafios técnicos bem interessantes que serviram de aprendizado:
 
