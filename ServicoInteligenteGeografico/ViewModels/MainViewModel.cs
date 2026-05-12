@@ -1,5 +1,4 @@
-﻿
-using QuestPDF.Fluent;
+﻿using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using ServicoInteligenteGeografico.Commands;
@@ -53,7 +52,6 @@ public class MainViewModel : BaseViewModel
 
     public ObservableCollection<LocalizacaoGeo> ResultadosApi { get; set; } = new();
 
-    // Propriedades e Listas...
     private string _localizacao = string.Empty;
     public string Localizacao
     {
@@ -61,8 +59,6 @@ public class MainViewModel : BaseViewModel
         set { _localizacao = value; OnPropertyChanged(nameof(Localizacao)); }
     }
 
-    // Propriedades para o cálculo de distância
-    // Troque os doubles por strings
     private string _latOrigem = "0";
     public string LatitudeOrigem
     {
@@ -91,7 +87,6 @@ public class MainViewModel : BaseViewModel
         set { _longDestino = value; OnPropertyChanged(nameof(Longitude)); }
     }
 
-    // Propriedade para exibir o resultado (TextBlock verde)
     private string _resultadoFormatado;
     public string ResultadoFormatado
     {
@@ -99,8 +94,6 @@ public class MainViewModel : BaseViewModel
         set { _resultadoFormatado = value; OnPropertyChanged(nameof(ResultadoFormatado)); }
     }
 
-
-    // Propriedades para filtro
     private string _filtroTexto = string.Empty;
     public string FiltroTexto
     {
@@ -109,11 +102,11 @@ public class MainViewModel : BaseViewModel
         {
             _filtroTexto = value;
             OnPropertyChanged(nameof(FiltroTexto));
-            AplicarFiltro(); // Filtra enquanto o usuário digita
+            AplicarFiltro();
         }
     }
 
-    private string _tipoFiltro = "Bairro"; // Padrão
+    private string _tipoFiltro = "Bairro";
     public string TipoFiltro
     {
         get => _tipoFiltro;
@@ -122,18 +115,13 @@ public class MainViewModel : BaseViewModel
 
     public ObservableCollection<double> Locais { get; set; } = new();
     public ObservableCollection<LocalizacaoGeo> Dados { get; set; } = new();
-
     public ObservableCollection<LocalizacaoGeo> Resultados { get; set; } = new();
 
-    // Comandos
     public ICommand BuscarCommand { get; }
-
     public ICommand LimparCommand { get; }
     public ICommand GerarPdfCommand { get; }
     public ICommand HistoricoCommand { get; }
-
     public ICommand CalcularCommand { get; }
-
     public ICommand ApiListarTodasCommand { get; }
     public ICommand ApiBuscarPorIdCommand { get; }
     public ICommand ApiBuscarPorLogradouroCommand { get; }
@@ -154,50 +142,36 @@ public class MainViewModel : BaseViewModel
         _analiseRepo = new AnaliseRepository();
 
         BuscarCommand = new RelayCommand(async () => await BuscarAsync());
-        GerarPdfCommand = new RelayCommand(async () => await GerarPdfAsync()); // Alterado para Async
+        GerarPdfCommand = new RelayCommand(async () => await GerarPdfAsync());
         HistoricoCommand = new RelayCommand(async () => await CarregarHistoricoAsync());
-
         LimparCommand = new RelayCommand(() => Limpar());
 
         _ = CarregarRankingAsync();
-
     }
 
     private async Task BuscarAsync()
     {
         try
         {
-            // Busca os dados brutos da API
             var listaDeBanco = await _mapasApiService.BuscarTodasAsync();
-            var lista = await _mapasApiService.BuscarPorLogradouroAsync(BuscaApiLogradouro.Trim());
-            foreach (var item in lista) Dados.Add(item);
-            StatusApi = lista.Count > 0 ? $"✔ {lista.Count} resultado(s) para '{BuscaApiLogradouro}'." : "Nenhum resultado encontrado.";
-            // Limpa a lista atual para garantir que não haja duplicatas na tela
+
             Dados.Clear();
 
-            // Adiciona tudo o que veio da API diretamente na lista
             foreach (var item in listaDeBanco)
-            {
                 Dados.Add(item);
-            }
 
-
-            // Controle de Erro simples para o caso de a API retornar uma lista vazia
             if (Dados.Count == 0)
-            {
                 MessageBox.Show("A API retornou uma lista vazia.");
-            }
 
             LogService.RegistrarLog($"Carga de dados realizada. Itens carregados: {Dados.Count}");
         }
         catch (Exception ex)
         {
             LogService.RegistrarLog($"Erro ao carregar dados: {ex.Message}", "ERROR");
-            MessageBox.Show("Erro ao buscar dados na API. Verifique a conexão.");
+            MessageBox.Show($"Erro ao buscar dados na API:\n{ex.Message}", "Erro de API");
         }
     }
 
-    // Limpar a lista de dados 
     private void Limpar()
     {
         Dados.Clear();
@@ -221,17 +195,16 @@ public class MainViewModel : BaseViewModel
         }
     }
 
-    // Implementação do Cálculo de distância
     private async Task Calcular()
     {
         try
         {
-            // Função para converter aceitando ponto ou vírgula
             double converter(string valor)
             {
                 if (string.IsNullOrWhiteSpace(valor)) return 0;
                 string limpo = valor.Replace(',', '.');
-                if (double.TryParse(limpo, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double res))
+                if (double.TryParse(limpo, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out double res))
                     return res;
                 return 0;
             }
@@ -241,7 +214,6 @@ public class MainViewModel : BaseViewModel
             double lat2 = converter(Latitude);
             double lon2 = converter(Longitude);
 
-            // Debug visual 
             if (lat1 == 0 && lat2 == 0)
             {
                 ResultadoFormatado = "Atenção: Destino não informado.";
@@ -259,7 +231,7 @@ public class MainViewModel : BaseViewModel
 
     private double CalcularDistancia(double lat1, double lon1, double lat2, double lon2)
     {
-        const double R = 6371; // Raio da Terra em km
+        const double R = 6371;
         double dLat = ToRadians(lat2 - lat1);
         double dLon = ToRadians(lon2 - lon1);
         double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
@@ -277,23 +249,18 @@ public class MainViewModel : BaseViewModel
 
             Resultados.Clear();
             foreach (var item in lista)
-            {
                 Resultados.Add(item);
-            }
 
-            // Aplicamos o filtro inicial caso haja algo escrito no campo de filtro
             AplicarFiltro();
-
             LogService.RegistrarLog("Ranking atualizado.");
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao carregar ranking: " + ex.Message);
+            // ✅ Agora mostra o erro real
+            MessageBox.Show($"Erro ao carregar ranking:\n{ex.Message}", "Erro de API");
         }
-
     }
 
-    // Método para aplicar o filtro na lista que a DataGrid exibe
     private void AplicarFiltro()
     {
         var view = CollectionViewSource.GetDefaultView(Resultados);
@@ -302,7 +269,6 @@ public class MainViewModel : BaseViewModel
         {
             view.Filter = null;
         }
-
         else
         {
             view.Filter = (obj) =>
@@ -310,7 +276,6 @@ public class MainViewModel : BaseViewModel
                 var item = obj as LocalizacaoGeo;
                 if (item == null) return false;
 
-                // Lógica dinâmica baseada no que foi selecionado no ComboBox
                 return TipoFiltro switch
                 {
                     "Bairro" => item.Bairro?.Contains(FiltroTexto, StringComparison.OrdinalIgnoreCase) ?? false,
@@ -321,7 +286,6 @@ public class MainViewModel : BaseViewModel
             };
         }
     }
-
 
     private double ToRadians(double angle) => Math.PI * angle / 180.0;
 
@@ -351,13 +315,11 @@ public class MainViewModel : BaseViewModel
                         {
                             row.RelativeItem().Text("Relatório de Localizações")
                                 .FontSize(16).SemiBold().FontColor(Colors.Blue.Medium);
-
                             row.RelativeItem().AlignRight().Text(DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
                         });
 
                         page.Content().PaddingVertical(10).Table(table =>
                         {
-                            // Definição de colunas 
                             table.ColumnsDefinition(columns =>
                             {
                                 columns.ConstantColumn(30);
@@ -370,7 +332,6 @@ public class MainViewModel : BaseViewModel
                                 columns.RelativeColumn(1.5f);
                             });
 
-                            // Cabeçalho 
                             table.Header(header =>
                             {
                                 header.Cell().Element(c => HeaderStyle(c)).Text("ID").FontColor(Colors.White).Bold();
@@ -383,7 +344,6 @@ public class MainViewModel : BaseViewModel
                                 header.Cell().Element(c => HeaderStyle(c)).Text("Data/Hora").FontColor(Colors.White).Bold();
                             });
 
-                            // Loop 
                             foreach (var item in Resultados)
                             {
                                 table.Cell().Element(c => CellStyle(c)).Text(item.Id ?? "-").FontColor(Colors.Black);
@@ -417,21 +377,11 @@ public class MainViewModel : BaseViewModel
         }
     }
 
-    // Estilo do Cabeçalho
     static QuestPDF.Infrastructure.IContainer HeaderStyle(QuestPDF.Infrastructure.IContainer c) =>
-        c.Border(0.5f)                       // Borda 
-         .BorderColor(Colors.Blue.Darken2)          // Cor da linha
-         .Background(Colors.Blue.Darken1)   // Cor de fundo das colunas
-         .Padding(2)
-         .AlignCenter()
-         .AlignMiddle();
-    
+        c.Border(0.5f).BorderColor(Colors.Blue.Darken2).Background(Colors.Blue.Darken1)
+         .Padding(2).AlignCenter().AlignMiddle();
 
-    // Estilo da Célula
     static QuestPDF.Infrastructure.IContainer CellStyle(QuestPDF.Infrastructure.IContainer c) =>
-        c.Border(0.5f)                       // Grelha visível
-         .BorderColor(Colors.Grey.Lighten1)  // Linhas internas 
-         .Padding(2)
-         .AlignLeft()                        // Alinhamento padrão à esquerda
-         .AlignMiddle();
+        c.Border(0.5f).BorderColor(Colors.Grey.Lighten1)
+         .Padding(2).AlignLeft().AlignMiddle();
 }
