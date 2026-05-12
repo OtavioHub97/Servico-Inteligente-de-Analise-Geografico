@@ -85,9 +85,17 @@ dotnet add package FirebaseDatabase.net --version 4.2.0
 Ao tentar instalar os pacotes pelo terminal do Visual Studio, o comando retornou o erro Não foi possível encontrar nenhum projeto. O terminal estava na pasta raiz do repositório, e não dentro da pasta do projeto .csproj.
 Solução: navegar para a pasta correta com cd ServicoInteligenteGeografico antes de rodar os comandos.
 
+**formato da API**
+Formato inesperado da API do Squad 2 — Ao tentar consumir a API, o código quebrava porque esperava receber um array [...] diretamente, mas a API retornava um objeto wrapper { "mensagem": "...", "localizacoes": [...] }. Foi necessário criar a classe RespostaMapas para tratar esse formato.
+
 **5.3 - Dificuldades Encontradas e Soluções (Otavio)**
 
 Durante o desenvolvimento da minha parte no projeto, acabei esbarrando em alguns desafios técnicos bem interessantes que serviram de aprendizado:
+
+**5.3 - Dificuldades Encontradas e Soluções (Bruno Maia)**
+No início da implantação, houve dificuldade no entendimento estrutural do projeto. Devido à necessidade de integração com outros projetos, foi necessária uma pesquisa mais aprofundada para definir e organizar adequadamente a estrutura de pastas e classes.
+
+Também houve dificuldade relacionada ao tempo disponível para implementar o retorno dos registros recebidos com sucesso pela Squad 2. Como essa funcionalidade exigia implementação em ambas as pontas (Projeto Squad 3 e Squad 2), a proposta de retorno dos registros integrados foi apresentada à Squad 2. Contudo, em razão do prazo de entrega do projeto, não foi possível concluir essa implementação dentro do período previsto.
 
 * **Curva de aprendizado com o Firebase e divisão de tarefas:**
   Sair do modelo tradicional de banco de dados e entender como o Firebase funciona (com coleções, documentos e chamadas assíncronas) foi meio confuso no começo. Tive bastante dificuldade para fazer essa configuração inicial rodar redonda. No fim das contas, para o projeto não travar, fizemos uma rotação nas tarefas da squad: um colega que tinha mais facilidade assumiu a sequência da integração com o banco, e eu foquei em deixar a parte de modelagem, logs e tratamento de erros robusta.
