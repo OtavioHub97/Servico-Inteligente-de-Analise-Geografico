@@ -45,7 +45,7 @@ Ao clonar o projeto, cada membro do time precisa gerar sua própria chave seguin
 Raiz do projeto: ServicoInteligenteGeografico/ <br>
 Pasta de saída: ServicoInteligenteGeografico/bin/Debug/net8.0-windows/ <br>
 
-Passo 6 — No Visual Studio, clique com botão direito no arquivo → "Propriedades" → "Copiar para diretório de saída" → selecione "Copiar sempre"
+**Passo 6** — No Visual Studio, clique com botão direito no arquivo → "Propriedades" → "Copiar para diretório de saída" → selecione "Copiar sempre"
 O arquivo já está listado no .gitignore do projeto, então não há risco de ser enviado ao repositório por acidente.
 
 ```
