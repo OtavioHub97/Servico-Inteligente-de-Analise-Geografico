@@ -16,8 +16,6 @@ using System.Windows.Input;
 
 public class MainViewModel : BaseViewModel
 {
-    private readonly LocalizacaoRepository _localizacaoRepo;
-    private readonly AnaliseRepository _analiseRepo;
 
     private readonly MapasApiService _mapasApiService;
 
@@ -138,12 +136,8 @@ public class MainViewModel : BaseViewModel
 
         CalcularCommand = new RelayCommand(() => Calcular());
 
-        _localizacaoRepo = new LocalizacaoRepository();
-        _analiseRepo = new AnaliseRepository();
-
         BuscarCommand = new RelayCommand(async () => await BuscarAsync());
         GerarPdfCommand = new RelayCommand(async () => await GerarPdfAsync());
-        HistoricoCommand = new RelayCommand(async () => await CarregarHistoricoAsync());
         LimparCommand = new RelayCommand(() => Limpar());
 
         _ = CarregarRankingAsync();
@@ -175,24 +169,6 @@ public class MainViewModel : BaseViewModel
     private void Limpar()
     {
         Dados.Clear();
-    }
-
-    private async Task CarregarHistoricoAsync()
-    {
-        try
-        {
-            var lista = await _localizacaoRepo.BuscarTodasAsync();
-            Resultados.Clear();
-            Locais.Clear();
-
-            foreach (var item in lista) Resultados.Add(item);
-
-            LogService.RegistrarLog("Histórico carregado do Firebase.");
-        }
-        catch (Exception ex)
-        {
-            LogService.RegistrarLog($"Falha ao carregar histórico: {ex.Message}", "ERROR");
-        }
     }
 
     private async Task Calcular()
